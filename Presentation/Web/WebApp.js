@@ -3,7 +3,13 @@ import UtilsCheckers from "../../Infrastructure/Utils/Checkers.js";
 
 
 
-import InterfacesRouter from "./Interfaces/Interfaces.Router.js"
+import InterfacesRouter from "./Interfaces/Interfaces.Router.js";
+
+import InterfacesDataSourcesApi from "../../Data/Interfaces/Interfaces.Sources.Api.js";
+
+import InterfacesRepositoriesApi from "../../Data/Interfaces/Repositories/Interfaces.Repositories.LocalSorage.js";
+
+import { InterfacesServicesUser } from "../../Domain/Interfaces/Services/Interfaces.Services.User.js";
 
 import InterfacesViews from "./Interfaces/Views/Interfaces.Views.js";
 import { InterfacesViewsHeader } from "./Interfaces/Views/Interfaces.Views.Header.js"
@@ -12,6 +18,21 @@ import { InterfacesViewsHome } from "./Interfaces/Views/Interfaces.Views.Home.js
 import InterfacesControllers from "./Interfaces/Controllers/Interfaces.Controllers.js";
 
 import { InterfacesModelsUser } from "./Interfaces/Models/Interfaces.Models.User.js";
+
+
+
+
+import { SourcesLocalStorage } from "../../Data/DataSources/Sources.LocalStorage.js"
+
+
+
+
+import { RepositoriesLocalStorage } from "../../Data/Repositories/Repositories.LocalSorage.js";
+
+
+
+
+import { ServicesUser } from "../../Domain/Services/Services.User.js";
 
 
 
@@ -44,6 +65,9 @@ import { Router } from "./Router.js";
 
 class WebApp
 {
+	#sources = null;
+	#repositories = null;
+	#services = null;
 	#models = null;
 	#views = null;
 	#controllers = null;
@@ -53,12 +77,57 @@ class WebApp
 	static getRequiredFields() { return null; }
 	static getRequiredMethods() { return ["initializeApp"]; }
 
+	#initializeSources()
+	{
+		const check = (object, base) => { UtilsCheckers.checkInstance(object, base); }
+
+		check(SourcesLocalStorage, InterfacesDataSourcesApi);
+		const sourceLocalStorage = new SourcesLocalStorage();
+
+		const sources =
+		{
+			localStorage: sourceLocalStorage
+		};
+
+		return sources;
+	}
+
+	#initializeRepositories()
+	{
+		const check = (object, base) => { UtilsCheckers.checkInstance(object, base); }
+
+		check(RepositoriesLocalStorage, InterfacesRepositoriesApi);
+		const repositoryLocalStorage = new RepositoriesLocalStorage(this.#sources.localStorage);
+
+		const repositories =
+		{
+			localStorage: repositoryLocalStorage
+		};
+
+		return repositories;
+	}
+
+	#initializeServices()
+	{
+		const check = (object, base) => { UtilsCheckers.checkInstance(object, base); }
+
+		check(ServicesUser, InterfacesServicesUser);
+		const serviceUser = new ServicesUser(this.#repositories.localStorage);
+
+		const services =
+		{
+			user: serviceUser
+		};
+
+		return services;
+	}
+	
 	#initializeModels()
 	{
 		const check = (object, base) => { UtilsCheckers.checkInstance(object, base); }
 
 		check(ModelsUser, InterfacesModelsUser);
-		const ModelUser = new ModelsUser();
+		const ModelUser = new ModelsUser(this.#services.user);
 
 		const models =
 		{
@@ -140,6 +209,9 @@ class WebApp
 
 	async initializeApp()
 	{
+		this.#sources = this.#initializeSources();
+		this.#repositories = this.#initializeRepositories();
+		this.#services = this.#initializeServices();
 		this.#models = this.#initializeModels();
 		this.#views = this.#initializeViews();
 		this.#controllers = this.#initializeControllers();

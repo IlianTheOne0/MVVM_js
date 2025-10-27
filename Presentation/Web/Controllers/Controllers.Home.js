@@ -14,7 +14,7 @@ class ControllersHome
 		this.view = viewHome;
 	}
 
-	async initialize(html) { this.view.render(html); this.view.updateAuthBlock(this.model.isLoggedIn()); }
+	async initialize(html) { this.view.render(html); await this.view.updateAuthBlock(this.model.isLoggedIn(), await this.model.getUsername()); }
 }
 
 export { ControllersHome };

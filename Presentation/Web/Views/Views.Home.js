@@ -12,15 +12,17 @@ class ViewsHome
 	getElement(selector) { return document.querySelector(selector); }
 	render(html, bindEvents) { this.#app.innerHTML = html; if (bindEvents) { bindEvents(); } }
 
-	updateAuthBlock(isLoggedIn = false)
+	async updateAuthBlock(isLoggedIn = false, username = null)
 	{
 		UtilsCheckers.checkArgument(isLoggedIn, "boolean");
 
 		const anonUser = this.getElement('#anon-user');
 		const loggedUser = this.getElement('#logged-user');
-		if (!anonUser || !loggedUser) { console.warn("Elements for user status not found"); return; }
+		const spanUsername = this.getElement('#user-name');
 
-		if (isLoggedIn) { anonUser.classList.add('hidden'); loggedUser.classList.remove('hidden'); return; }
+		if (!anonUser || !loggedUser || !spanUsername) { console.warn("Elements for user status not found"); return; }
+
+		if (isLoggedIn) { anonUser.classList.add('hidden'); loggedUser.classList.remove('hidden'); spanUsername.textContent = username; return; }
 		anonUser.classList.remove('hidden'); loggedUser.classList.add('hidden');
 	}
 }
