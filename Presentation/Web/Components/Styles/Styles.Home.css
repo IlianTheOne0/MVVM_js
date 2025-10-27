@@ -1,0 +1,23 @@
+@import url("./Styles.Default.css");
+
+section
+{
+	color: #ffff;
+}
+
+section a
+{
+	color: #ffd700;
+	text-decoration: none;
+}
+
+section a:hover
+{
+	color: #ffa500;
+	transition: color 0.1s ease-out;
+}
+
+h2
+{
+	text-align: center;
+}

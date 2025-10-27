@@ -21,7 +21,7 @@ class ControllersNotFound
 	#bindEvents()
 	{
 		const homeButton = this.view.getElement('#homeButton');
-		if (homeButton) { homeButton.addEventListener('click', async () => { await this.#goHome(); }); }
+		if (homeButton) { homeButton.addEventListener("click", async () => { await this.#goHome(); }); }
 	}
 
 	async #goHome() { await (new Router()).navigateTo("/"); }

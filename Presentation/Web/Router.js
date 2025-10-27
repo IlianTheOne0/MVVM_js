@@ -2,7 +2,7 @@ import UtilsCheckers from "../../Infrastructure/Utils/Checkers.js"
 
 class Router
 {
-	static getRequiredFields() { return ["controllers", "routes", "app"]; }
+	static getRequiredFields() { return ["controllers", "routes", "app", "toRender"]; }
 	static getRequiredMethods() { return ["navigateTo", "handleRoute"]; }
 
 	constructor(controllers)
@@ -25,22 +25,17 @@ class Router
 		{
 			"/":
 			{
-				path: "Pages.Home.html",
+				path: "Components.Home.html",
 				initialize: async (html) => await executeController("home", html)
 			},
-			"/tickets":
+			"/auth":
 			{
-				path: "Pages.Tickets.html",
-				initialize: async (html) => await executeController("tickets", html)
-			},
-			"/profile":
-			{
-				path: "Pages.Profile.html",
-				initialize: async (html) => await executeController("profile", html)
+				path: "Components.Auth.html",
+				initialize: async (html) => await executeController("auth", html)
 			},
 			"*":
 			{
-				path: "Pages.NotFound.html",
+				path: "Components.NotFound.html",
 				initialize: async (html) => await executeController("notFound", html)
 			}
 		}
@@ -48,23 +43,41 @@ class Router
 		window.addEventListener('popstate', () => this.handleRoute());
 		this.#interceptNavClicks();
 
+		this.toRender =
+		[
+			{ componentPath: "Components.Header.html", initialize: async (html) => await executeController("header", html), priority: 1 },
+		];
+		this.toRender.sort((a, b) => a.priority - b.priority);
+
 		this.app = document.getElementById("app");
 	}
 
-	async navigateTo(path) { this.#findPage(null, path); await this.handleRoute(); }
+	async navigateTo(path) { this.#findComponent(null, path); await this.handleRoute(); }
 
 	async handleRoute()
 	{
 		const path = window.location.pathname;
 		const routeKey = `/${path.split("/").pop()}`;
 		let route = null;
-		if (routeKey === "/Pages.Index.html") {  route = this.route["/"]; }
+		if (routeKey === "/Components.Index.html") {  route = this.route["/"]; }
 		else { route = this.route[routeKey] || this.route["*"]; }
 		
 		try
 		{
-			const html = await this.#fetchHtml(route.path);
-			await route.initialize(html);
+			await Promise.all
+			(
+				this.toRender.map
+				(
+					async (component) =>
+					{
+						const componentHtml = await this.#fetchHtml(component.componentPath);
+						await component.initialize(componentHtml);
+					}
+				)
+			);
+
+			const pageHtml = await this.#fetchHtml(route.path);
+			await route.initialize(pageHtml);
 		}
 		catch (error)
 		{
@@ -108,16 +121,16 @@ class Router
 				if (event.target.matches("a"))
 				{
 					event.preventDefault();
-					this.#findPage(event);
+					this.#findComponent(event);
 					await this.handleRoute();
 				}
 			}
 		)
 	}
 
-	#findPage(event = null, href = null)
+	#findComponent(event = null, href = null)
 	{
-		const basePath = "/Presentation/Web/Pages";
+		const basePath = "/Presentation/Web/Components";
 		if (!href) { href = event.target.getAttribute("href"); }
 		const fullPath = basePath + href.replace(basePath, "");
 		history.pushState({}, "", fullPath);

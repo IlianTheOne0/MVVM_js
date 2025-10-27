@@ -1,16 +1,46 @@
 import UtilsCheckers from "../../Infrastructure/Utils/Checkers.js";
 
+
+
+
 import InterfacesRouter from "./Interfaces/Interfaces.Router.js"
-import InterfacesViews from "./Interfaces/Interfaces.Views.js";
-import InterfacesControllers from "./Interfaces/Interfaces.Controllers.js";
 
-import { ModelsNotFound } from "./Models/Models.NotFound.js";
+import InterfacesViews from "./Interfaces/Views/Interfaces.Views.js";
+import { InterfacesViewsHeader } from "./Interfaces/Views/Interfaces.Views.Header.js"
+import { InterfacesViewsHome } from "./Interfaces/Views/Interfaces.Views.Home.js"
 
-import { ViewsNotFound } from "./Views/View.NotFound.js";
+import InterfacesControllers from "./Interfaces/Controllers/Interfaces.Controllers.js";
 
+import { InterfacesModelsUser } from "./Interfaces/Models/Interfaces.Models.User.js";
+
+
+
+
+import { ModelsUser } from "./Models/Models.User.js";
+
+
+
+
+import { ViewsDefault } from "./Views/Views.Default.js";
+import { ViewsHeader } from "./Views/Views.Header.js";
+import { ViewsHome } from "./Views/Views.Home.js";
+
+
+
+
+import { ControllersDefault } from "./Controllers/Controllers.Default.js"
+import { ControllersHeader } from "./Controllers/Controllers.Header.js";
 import { ControllersNotFound } from "./Controllers/Controllers.NotFound.js";
+import { ControllersHome } from "./Controllers/Controllers.Home.js";
+import { ControllersAuth } from "./Controllers/Controllers.Auth.js";
+
+
+
 
 import { Router } from "./Router.js";
+
+
+
 
 class WebApp
 {
@@ -24,10 +54,15 @@ class WebApp
 	static getRequiredMethods() { return ["initializeApp"]; }
 
 	#initializeModels()
-	{		
+	{
+		const check = (object, base) => { UtilsCheckers.checkInstance(object, base); }
+
+		check(ModelsUser, InterfacesModelsUser);
+		const ModelUser = new ModelsUser();
+
 		const models =
 		{
-			notFound: new ModelsNotFound()
+			user: ModelUser
 		};
 
 		return models;
@@ -37,12 +72,20 @@ class WebApp
 	{
 		const check = (object, base) => { UtilsCheckers.checkInstance(object, base); }
 
-		check(ViewsNotFound, InterfacesViews);
-		const ViewNotFound = new ViewsNotFound();
+		check(ViewsDefault, InterfacesViews);
+		const ViewDefault = new ViewsDefault();
+
+		check(ViewsHeader, InterfacesViewsHeader);
+		const ViewHeader = new ViewsHeader();
+
+		check(ViewsHome, InterfacesViewsHome);
+		const ViewHome = new ViewsHome();
 		
 		const views =
 		{
-			notFound: ViewNotFound
+			default: ViewDefault,
+			header: ViewHeader,
+			home: ViewHome
 		};
 
 		return views;
@@ -51,13 +94,29 @@ class WebApp
 	#initializeControllers()
 	{
 		const check = (object, base) => { UtilsCheckers.checkInstance(object, base); }
+		
+		check(ControllersDefault, InterfacesControllers);
+		const ControllerDefault = new ControllersDefault(this.#models.user, this.#views.default);
+
+		check(ControllersHeader, InterfacesControllers);
+		const ControllerHeader = new ControllersHeader(this.#models.user, this.#views.header);
 
 		check(ControllersNotFound, InterfacesControllers);
-		const ControllerNotFound = new ControllersNotFound(this.#models.notFound, this.#views.notFound);
+		const ControllerNotFound = new ControllersNotFound(null, this.#views.default);
+		
+		check(ControllersHome, InterfacesControllers);
+		const ControllerHome = new ControllersHome(this.#models.user, this.#views.home);
+
+		check(ControllersAuth, InterfacesControllers);
+		const ControllerAuth = new ControllersAuth(this.#models.user, this.#views.default);
 
 		const controllers =
 		{
-			notFound: ControllerNotFound
+			default: ControllerDefault,
+			header: ControllerHeader,
+			notFound: ControllerNotFound,
+			home: ControllerHome,
+			auth: ControllerAuth
 		};
 
 		return controllers;
@@ -69,7 +128,10 @@ class WebApp
 		const router = new Router
 		(
 			[
-				this.#controllers.notFound
+				this.#controllers.header,
+				this.#controllers.notFound,
+				this.#controllers.home,
+				this.#controllers.auth
 			]
 		);
 

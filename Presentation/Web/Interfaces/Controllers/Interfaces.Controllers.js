@@ -1,4 +1,4 @@
-import Interfaces from "../../../Infrastructure/Interfaces/Interfaces.js";
+import Interfaces from "../../../../Infrastructure/Interfaces/Interfaces.js";
 
 class InterfacesControllers extends Interfaces
 {
