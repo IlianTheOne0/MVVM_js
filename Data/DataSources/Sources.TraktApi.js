@@ -1,21 +1,31 @@
 import XMLHttpRequest from "xhr2";
 
+import UtilsCheckers from "../../Infrastructure/Utils/Checkers.js";
+
 class SourcesTraktApi
 {
-	static getRequiredFields() { return ["#client", "#clientId"]; }
-	static getRequiredMethods() { return ["#query", "initialize", "testConnection"]; }
+	static getRequiredFields() { return null; }
+	static getRequiredMethods() { return ["initialize", "testConnection"]; }
 
 	#client = null;
 	#clientId = null;
 
-	constructor(clientId) { if (!clientId || typeof clientId !== "string") { throw new Error("Invalid clientId"); } this.#clientId = clientId; }
+	constructor(clientId)
+	{
+		UtilsCheckers.checkArgument(clientId, "string");
+		
+		this.#clientId = clientId;
+	}
 
 	async #query(endpoint, method = "GET", body = null)
 	{
 		try
 		{
 			if (!this.#client) { throw new Error("Client is not initialized"); }
-			if (!endpoint || typeof endpoint !== "string") { throw new Error("Invalid endpoint"); }
+
+			UtilsCheckers.checkArgument(endpoint, "string");
+			UtilsCheckers.checkArgument(method, "GET", "POST", "PUT", "DELETE", "PATCH");
+			if (body !== null) { UtilsCheckers.checkArgument(body, "object"); }
 
 			const request = this.#client;
 			const url = `https://api.trakt.tv/${endpoint}`;
@@ -60,7 +70,7 @@ class SourcesTraktApi
 		{
 			const response = await this.#query("calendars/all/movies/2014-09-01/1");
 			
-			if (!response) { throw new Error("Invalid response from Trakt API"); }
+			if (!response) { throw new Error("Invalid response from Trakt API", "ASD"); }
 			return true;
 		}
 		catch (error) { throw error; }

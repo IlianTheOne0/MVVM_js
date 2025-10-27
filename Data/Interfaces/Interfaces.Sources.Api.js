@@ -1,7 +1,9 @@
-class InterfacesDataSourcesApi
+import Interfaces from "../../Infrastructure/Interfaces/Interfaces.js";
+
+class InterfacesDataSourcesApi extends Interfaces
 {
-	static getRequiredFields() { return ["#client", "#clientId"]; }
-	static getRequiredMethods() { return ["#query", "initialize", "testConnection"]; }
+	static getRequiredFields() { return null; }
+	static getRequiredMethods() { return ["initialize", "testConnection"]; }
 }
 
 export default InterfacesDataSourcesApi;
