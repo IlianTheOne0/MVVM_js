@@ -5,7 +5,7 @@ import UtilsCheckers from "../../Infrastructure/Utils/Utils.Checkers.js";
 class SourcesTraktApi
 {
 	static getRequiredFields() { return null; }
-	static getRequiredMethods() { return ["initialize", "testConnection", "getTrendingMovies"]; }
+	static getRequiredMethods() { return ["initialize", "testConnection", "getMovies"]; }
 
 	#client = null;
 	#clientId = null;
@@ -36,7 +36,10 @@ class SourcesTraktApi
 			request.setRequestHeader('Content-Type', 'application/json');
 			request.setRequestHeader('trakt-api-version', '2');
 			request.setRequestHeader('trakt-api-key', this.#clientId);
-			// if (body) { request.setRequestHeader('Content-Length', Buffer.byteLength(JSON.stringify(body))); }
+			if (typeof window === 'undefined')
+			{
+				if (body) { request.setRequestHeader('Content-Length', Buffer.byteLength(JSON.stringify(body))); }
+			}
 
 			await new Promise
 			(
@@ -93,21 +96,37 @@ class SourcesTraktApi
 		catch (error) { throw error; }
 	}
 
-	async getTrendingMovies(pagination = { page: 10, limit: 10 })
+	async getMovies(pagination = { page: 1, limit: 10 }, filters = {})
 	{
 		try
 		{
 			UtilsCheckers.checkArgument(pagination, "object");
 			UtilsCheckers.checkArgument(pagination.page, "number");
 			UtilsCheckers.checkArgument(pagination.limit, "number");
+			if (filters !== null) { UtilsCheckers.checkArgument(filters, "object"); }
 			
-			const endpoint = `movies/trending?page=${pagination.page}&limit=${pagination.limit}`;
-			var response = await this.#query(endpoint, "GET");
-			
-			if (!response || !Array.isArray(response)) { throw new Error("Invalid response from Trakt API"); }
+			const endpoint = `calendars/all/movies`;
 
-			for (const movie of response) { movie.poster = await this.#getMovieImages(movie.movie.ids.trakt); }
-			return response;
+			const queryParams = new URLSearchParams();
+			if (filters.dateFrom) { queryParams.append("start_date", filters.dateFrom); }
+			if (filters.dateTo) { queryParams.append("end_date", filters.dateTo); }
+			if (filters.title) { queryParams.append("query", filters.title); }
+
+			const endpointWithFilters = `${endpoint}?${queryParams.toString()}`;
+			const filteredMovies = await this.#query(endpointWithFilters, "GET");
+
+			if (!filteredMovies || !Array.isArray(filteredMovies)) { throw new Error("Invalid response from Trakt API"); }
+
+			const page = pagination.page;
+			const limit = pagination.limit;
+			const startIndex = (page - 1) * limit;
+			const endIndex = startIndex + limit;
+
+			const paginatedMovies = filteredMovies.slice(startIndex, endIndex);
+			
+			for (const movie of paginatedMovies) { movie.poster = await this.#getMovieImages(movie.movie.ids.trakt); }
+			
+			return paginatedMovies;
 		}
 		catch (error) { throw error; }
 	}

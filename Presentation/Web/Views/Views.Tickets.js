@@ -19,7 +19,7 @@ class ViewsTickets
 	{
 		const filmsContainer = this.getElement('.films-container');
 		if (!filmsContainer) { return; }
-
+		
 		for (const film of films)
 		{
 			const filmCard = document.createElement('div');
@@ -28,15 +28,15 @@ class ViewsTickets
 			`
 				<img src="" alt="${film.title} Poster">
 				<h3 id="film-card_title">${film.title}</h3>
-				<p id="film-card_date">${film.year}</p>
+				<p id="film-card_date">${film.date}</p>
 				<p id="film-card_available-seats">Available Seats: ${film.seatsAvailable}</p>
 				<label for="seat-selection">Number of seats:<input id="seat-selection" type="number" value="1" min="1"/></label>
 				<button id="book-ticket-btn">Book</button>
 			`;
 			const imgElement = filmCard.querySelector('img');
-			const objectUrl = URL.createObjectURL(film.poster);
-			imgElement.src = objectUrl;
-			imgElement.onload = () => { URL.revokeObjectURL(objectUrl); };
+
+			if (film.poster) { const objectUrl = URL.createObjectURL(film.poster); imgElement.src = objectUrl; imgElement.onload = () => { URL.revokeObjectURL(objectUrl); }; }
+			 else { imgElement.src = 'https://github.com/IlianTheOne0/MVVM_js/blob/hm/task/Presentation/Assets/Posters/default-poster.jpg?raw=true'; }
 
 			filmsContainer.appendChild(filmCard);
 		}

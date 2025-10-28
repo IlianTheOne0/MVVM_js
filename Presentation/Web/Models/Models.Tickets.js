@@ -13,7 +13,7 @@ class ModelsTickets
 		this.#ticketsService = ticketsService;
 	}
 
-	async getMovies(pagination = { page: 10, limit: 10 }) { return await this.#ticketsService.getMovies(pagination); }
+	async getMovies(pagination = { page: 10, limit: 10 }, filters = {}) { return await this.#ticketsService.getMovies(pagination, filters); }
 }
 
 export { ModelsTickets };

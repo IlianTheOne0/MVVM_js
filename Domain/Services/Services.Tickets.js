@@ -15,14 +15,14 @@ class ServicesTickets
 		this.#cache = cache;
 	}
 
-	async getMovies(pagination = { page: 10, limit: 10 })
+	async getMovies(pagination = { page: 10, limit: 10 }, filters = {})
 	{
-		const cacheKey = `movies_page${pagination.page}_limit${pagination.limit}`;
+		const cacheKey = `movies_page${pagination.page}_limit${pagination.limit}_filters${JSON.stringify(filters)}`;
 		if (this.#cache.has(cacheKey)) { return this.#cache.get(cacheKey); }
 
 		try
 		{
-			const movies = await this.#repository.getTrendingMovies(pagination);
+			const movies = await this.#repository.getMovies(pagination, filters);
 			this.#cache.set(cacheKey, movies);
 			return movies;
 		}

@@ -20,10 +20,12 @@ class RepositoriesImages
 
 		try
 		{
+			if (!imageUrl) { return null; }
+
 			const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
 			const absoluteUrl = imageUrl.startsWith('http://') || imageUrl.startsWith('https://') ? `${proxyUrl}${imageUrl}` : `${proxyUrl}https://${imageUrl}`;
 			const response = await fetch(absoluteUrl);
-			if (!response.ok) { throw new Error(`Failed to fetch image from ${imageUrl}`); }
+			if (!response.ok) { console.error(`Failed to fetch image from ${imageUrl}`); return null; }
 			
 			const image = await response.blob();
 			this.#cache.setPermanent(imageUrl, image);
