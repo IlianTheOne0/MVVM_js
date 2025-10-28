@@ -134,7 +134,7 @@ h2
 
 .page-selector
 {
-	margin: 20px 0;
+	margin: 20px 5px;
 	
 	text-align: center;
 }
@@ -152,4 +152,19 @@ h2
 	border-radius: 4px;
 	
 	cursor: pointer;
+}
+
+.page-selector button:hover
+{
+	background-color: #0056b3;
+	transition: background-color 0.2s ease-out;
+}
+
+.loading
+{
+	text-align: center;
+
+	margin-top: 50px;
+	
+	color: #fff;
 }

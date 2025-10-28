@@ -1,23 +1,17 @@
 class UtilsCache
 {
 	static getRequiredFields() { return null; }
-	static getRequiredMethods() { return ["set", "has", "get", "clear", "size"]; }
+	static getRequiredMethods() { return ["setPermanent", "set", "has", "get", "clear", "size"]; }
 
 	#map;
 
-	constructor(timeToLive = 6 * 1000)
-	{
-		if (UtilsCache.instance) { return UtilsCache.instance; }
-		UtilsCache.instance = this;
+	constructor(timeToLive = 6 * 100) { this.#map = new Map(); this.timeToLive = timeToLive; }
 
-		this.#map = new Map();
-		this.timeToLive = timeToLive;
-	}
-
-	#set(key, value)
+	#set(key, value, timeToLive = null)
 	{
 		const now = Date.now();
-		const expire = now + this.timeToLive * 1000;
+		const timeToLiveInSeconds = timeToLive || this.timeToLive;
+		const expire = (timeToLiveInSeconds === Infinity) ? Infinity : now + (timeToLiveInSeconds * 1000);
 		this.#map.set(key, { value, expire });
 	}
 	#get(key)
@@ -28,7 +22,8 @@ class UtilsCache
 		return entry.value;
 	}
 
-	set(key, value) { this.#set(key, value); }
+	setPermanent(key, value) { this.#set(key, value, Infinity); }
+	set(key, value, timeToLive = null) { this.#set(key, value, timeToLive); }
 	has(key) { return this.#get(key) !== null; }
 	get(key) { return this.#get(key); }
 	clear() { this.#map.clear(); }
@@ -36,4 +31,4 @@ class UtilsCache
 	size() { return this.#map.size; }
 }
 
-export default UtilsCache;
+export { UtilsCache };

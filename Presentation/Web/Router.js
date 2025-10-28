@@ -14,7 +14,6 @@ class Router
 		
 		const executeController = async (controllerName, html) =>
 		{
-			console.log(this.controllers);
 			const controller = this.controllers.find(controller => controller.name.includes(controllerName));
 			
 			if (controller) { await controller.initialize(html); }

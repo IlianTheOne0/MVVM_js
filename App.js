@@ -1,21 +1,3 @@
-// import UtilsCheckers from "./Infrastructure/Utils/Checkers.js";
-
-// import InterfacesDataSourcesApi from "./Data/Interfaces/Interfaces.Sources.Api.js";
-// import SourcesTraktApi from "./Data/DataSources/Sources.TraktApi.js";
-
-// try
-// {
-// 	UtilsCheckers.checkInstance(SourcesTraktApi, InterfacesDataSourcesApi);
-
-// 	const keysPath = "./Data/.env/keys.json";
-// 	const keysData = JSON.parse(fs.readFileSync(keysPath, "utf-8"));
-
-// 	const traktApiSource = new SourcesTraktApi(keysData.clientId);
-// 	await traktApiSource.initialize();
-// 	console.log(await traktApiSource.testConnection());
-// }
-// catch (error) { console.error(error, error.stack); }
-
 import fs from "fs";
 
 class MainApp

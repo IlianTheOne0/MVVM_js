@@ -1,9 +1,9 @@
 import Interfaces from "../../../Infrastructure/Interfaces/Interfaces.js";
 
-class InterfacesRepositoriesApi extends Interfaces
+class InterfacesRepositoriesLocalStorage extends Interfaces
 {
 	static getRequiredFields() { return null; }
 	static getRequiredMethods() { return ["checkUserExistance", "saveUser"]; }
 }
 
-export default InterfacesRepositoriesApi;
+export { InterfacesRepositoriesLocalStorage };

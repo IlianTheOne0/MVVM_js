@@ -5,7 +5,13 @@ class SourcesLocalStorage
 
 	#storage = null;
 
-	constructor() { this.#storage = window.localStorage; }
+	constructor()
+	{
+		if (SourcesLocalStorage.instance) { return SourcesLocalStorage.instance; }
+		SourcesLocalStorage.instance = this;
+		
+		this.#storage = window.localStorage;
+	}
 	
 	async initialize() { if (this.#storage) { return } this.#storage = window.localStorage; }
 	async testConnection() { return true; }

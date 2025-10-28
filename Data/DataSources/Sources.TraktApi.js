@@ -1,19 +1,21 @@
-import XMLHttpRequest from "xhr2";
+// import XMLHttpRequest from "xhr2";
 
 import UtilsCheckers from "../../Infrastructure/Utils/Utils.Checkers.js";
 
 class SourcesTraktApi
 {
 	static getRequiredFields() { return null; }
-	static getRequiredMethods() { return ["initialize", "testConnection"]; }
+	static getRequiredMethods() { return ["initialize", "testConnection", "getTrendingMovies"]; }
 
 	#client = null;
 	#clientId = null;
 
 	constructor(clientId)
 	{
+		if (SourcesTraktApi.instance) { return SourcesTraktApi.instance; }
+		SourcesTraktApi.instance = this;
+
 		UtilsCheckers.checkArgument(clientId, "string");
-		
 		this.#clientId = clientId;
 	}
 
@@ -34,7 +36,7 @@ class SourcesTraktApi
 			request.setRequestHeader('Content-Type', 'application/json');
 			request.setRequestHeader('trakt-api-version', '2');
 			request.setRequestHeader('trakt-api-key', this.#clientId);
-			if (body) { request.setRequestHeader('Content-Length', Buffer.byteLength(JSON.stringify(body))); }
+			// if (body) { request.setRequestHeader('Content-Length', Buffer.byteLength(JSON.stringify(body))); }
 
 			await new Promise
 			(
@@ -52,6 +54,21 @@ class SourcesTraktApi
 			if (request.status < 200 || request.status >= 300) { throw new Error(`Request failed with status ${request.status}`); }
 
 			return JSON.parse(request.responseText);
+		}
+		catch (error) { throw error; }
+	}
+
+	async #getMovieImages(movieId)
+	{
+		try
+		{
+			UtilsCheckers.checkArgument(movieId, "number");
+
+			const endpoint = `movies/${movieId}?extended=images`;
+			const response = await this.#query(endpoint, "GET");
+
+			if (!response || !response.images) { throw new Error("Invalid response or missing images from Trakt API"); }
+			return response.images.poster[0];
 		}
 		catch (error) { throw error; }
 	}
@@ -75,6 +92,25 @@ class SourcesTraktApi
 		}
 		catch (error) { throw error; }
 	}
+
+	async getTrendingMovies(pagination = { page: 10, limit: 10 })
+	{
+		try
+		{
+			UtilsCheckers.checkArgument(pagination, "object");
+			UtilsCheckers.checkArgument(pagination.page, "number");
+			UtilsCheckers.checkArgument(pagination.limit, "number");
+			
+			const endpoint = `movies/trending?page=${pagination.page}&limit=${pagination.limit}`;
+			var response = await this.#query(endpoint, "GET");
+			
+			if (!response || !Array.isArray(response)) { throw new Error("Invalid response from Trakt API"); }
+
+			for (const movie of response) { movie.poster = await this.#getMovieImages(movie.movie.ids.trakt); }
+			return response;
+		}
+		catch (error) { throw error; }
+	}
 }
 
-export default SourcesTraktApi;
+export { SourcesTraktApi };
