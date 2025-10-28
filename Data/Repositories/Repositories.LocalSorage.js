@@ -14,19 +14,18 @@ class RepositoriesLocalStorage
 		return JSON.parse(usersData);
 	}
 
-	async checkUserExistance(username, password)
+	async checkUserExistance(username, password, email = null)
 	{
 		const usersData = await this.#getAllUsers();
 		if (!usersData || usersData.length === 0) { return false; }
 
-		const user = usersData.find(user => user.username === username && user.password === password);
+		const user = usersData.find(user => user.username === username && user.password === password && (email === null || user.email === email));
 		return !!user;
 	}
 
 	async saveUser(userData)
 	{
-		const serversUserData = await this.getAllUsers();
-		const userExists = serversUserData.some(user => user.email === userData.email);
+		const userExists = await this.checkUserExistance(userData.username, userData.password, userData.email);
 		if (userExists) { return false; }
 
 		if (!userData.username || userData.username.trim() == "") { return false; }

@@ -8,7 +8,7 @@ class ViewsDefault
 	constructor() { this.#app = this.getElement('#app'); }
 
 	getElement(selector) { return document.querySelector(selector); }
-	render(html, bindEvents) { this.#app.innerHTML = html; if (bindEvents) { bindEvents(); } }
+	render(html) { this.#app.innerHTML = html; }
 }
 
 export { ViewsDefault };

@@ -1,6 +1,6 @@
 import XMLHttpRequest from "xhr2";
 
-import UtilsCheckers from "../../Infrastructure/Utils/Checkers.js";
+import UtilsCheckers from "../../Infrastructure/Utils/Utils.Checkers.js";
 
 class SourcesTraktApi
 {

@@ -1,4 +1,4 @@
-import UtilsCheckers from "../../Infrastructure/Utils/Checkers.js";
+import UtilsCheckers from "../../Infrastructure/Utils/Utils.Checkers.js";
 
 
 
@@ -45,7 +45,7 @@ import { ModelsUser } from "./Models/Models.User.js";
 import { ViewsDefault } from "./Views/Views.Default.js";
 import { ViewsHeader } from "./Views/Views.Header.js";
 import { ViewsHome } from "./Views/Views.Home.js";
-
+import { ViewsAuth } from "./Views/Views.Auth.js";
 
 
 
@@ -150,11 +150,15 @@ class WebApp
 		check(ViewsHome, InterfacesViewsHome);
 		const ViewHome = new ViewsHome();
 		
+		check(ViewsAuth, InterfacesViews);
+		const ViewAuth = new ViewsAuth();
+
 		const views =
 		{
 			default: ViewDefault,
 			header: ViewHeader,
-			home: ViewHome
+			home: ViewHome,
+			auth: ViewAuth
 		};
 
 		return views;
@@ -176,8 +180,11 @@ class WebApp
 		check(ControllersHome, InterfacesControllers);
 		const ControllerHome = new ControllersHome(this.#models.user, this.#views.home);
 
+		check(ControllersDefault, InterfacesControllers);
+		const ControllerTickets = new ControllersDefault(null, this.#views.default, "tickets_controller");
+
 		check(ControllersAuth, InterfacesControllers);
-		const ControllerAuth = new ControllersAuth(this.#models.user, this.#views.default);
+		const ControllerAuth = new ControllersAuth(this.#models.user, this.#views.auth);
 
 		const controllers =
 		{
@@ -185,8 +192,11 @@ class WebApp
 			header: ControllerHeader,
 			notFound: ControllerNotFound,
 			home: ControllerHome,
+			tickets: ControllerTickets,
 			auth: ControllerAuth
 		};
+
+		console.log(controllers);
 
 		return controllers;
 	}
@@ -200,6 +210,7 @@ class WebApp
 				this.#controllers.header,
 				this.#controllers.notFound,
 				this.#controllers.home,
+				this.#controllers.tickets,
 				this.#controllers.auth
 			]
 		);

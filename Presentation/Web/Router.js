@@ -1,4 +1,4 @@
-import UtilsCheckers from "../../Infrastructure/Utils/Checkers.js"
+import UtilsCheckers from "../../Infrastructure/Utils/Utils.Checkers.js";
 
 class Router
 {
@@ -14,7 +14,9 @@ class Router
 		
 		const executeController = async (controllerName, html) =>
 		{
+			console.log(this.controllers);
 			const controller = this.controllers.find(controller => controller.name.includes(controllerName));
+			
 			if (controller) { await controller.initialize(html); }
 			else { await this.route["*"].initialize(await this.#fetchHtml(this.route["*"].path)); }
 		}
@@ -27,6 +29,11 @@ class Router
 			{
 				path: "Components.Home.html",
 				initialize: async (html) => await executeController("home", html)
+			},
+			"/tickets":
+			{
+				path: "Components.Tickets.html",
+				initialize: async (html) => await executeController("tickets", html)
 			},
 			"/auth":
 			{

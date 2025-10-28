@@ -1,4 +1,4 @@
-import UtilsCheckers from "../../../Infrastructure/Utils/Checkers.js";
+import UtilsCheckers from "../../../Infrastructure/Utils/Utils.Checkers.js";
 
 class ViewsHeader
 {
@@ -18,10 +18,17 @@ class ViewsHeader
 		
 		const loginLink = this.getElement('#login-link');
 		const logoutLink = this.getElement('#logout-link');
-		if (!loginLink || !logoutLink) { console.warn("Elements for user status not found"); return; }
+		const ticketsLink = this.getElement('#tickets-link');
+		// const cartLink = this.getElement('#cart-link');
 
-		if (isLoggedIn) { loginLink.classList.add('hidden'); logoutLink.classList.remove('hidden'); return; }
-		loginLink.classList.remove('hidden'); logoutLink.classList.add('hidden');
+		if (!loginLink || !logoutLink) { throw new Error("Header elements not found"); }
+		// if (!ticketsLink || !cartLink) { throw new Error("Header elements not found"); }
+
+		loginLink.classList = (isLoggedIn ? 'hidden' : '');
+		logoutLink.classList = (isLoggedIn ? '' : 'hidden');
+
+		ticketsLink.classList = (isLoggedIn ? '' : 'hidden');
+		// cartLink.classList = (isLoggedIn ? '' : 'hidden');
 	}
 }
 
