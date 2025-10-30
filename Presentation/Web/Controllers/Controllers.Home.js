@@ -1,6 +1,6 @@
 class ControllersHome
 {
-	static getRequiredFields() { return ["name"]; }
+	static getRequiredFields() { return ["model", "view", "name"]; }
 	static getRequiredMethods() { return ["initialize"]; }
 	
 	name = "home_controller";

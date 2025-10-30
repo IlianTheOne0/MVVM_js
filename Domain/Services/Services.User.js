@@ -1,4 +1,6 @@
-class ServicesUser
+import InterfacesServices from "../../Infrastructure/Interfaces/Interfaces.Services.js";
+
+class ServicesUser extends InterfacesServices
 {
 	static getRequiredFields() { return null; }
 	static getRequiredMethods() { return ["isLoggedIn", "login", "logout"]; }
@@ -7,6 +9,8 @@ class ServicesUser
 
 	constructor(repositoryLocalStorage)
 	{
+		super();
+		
 		if (ServicesUser.instance) { return ServicesUser.instance; }
 		ServicesUser.instance = this;
 
@@ -26,6 +30,7 @@ class ServicesUser
 
 		const userExistance = await this.repositoryLocalStorage.checkUserExistance(username, password);
 		if (userExistance) { this.#currentUser = { Username: username }; return true; }
+
 		return false;
 	}
 	async logout()

@@ -39,6 +39,11 @@ class Router
 				path: "Components.Auth.html",
 				initialize: async (html) => await executeController("auth", html)
 			},
+			"/cart":
+			{
+				path: "Components.Cart.html",
+				initialize: async (html) => await executeController("cart", html)
+			},
 			"*":
 			{
 				path: "Components.NotFound.html",

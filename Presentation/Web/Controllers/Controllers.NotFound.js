@@ -2,7 +2,7 @@ import { Router } from "../Router.js";
 
 class ControllersNotFound
 {
-	static getRequiredFields() { return ["name"]; }
+	static getRequiredFields() { return ["model", "view", "name"]; }
 	static getRequiredMethods() { return ["initialize"]; }
 	
 	name = "notFound_controller";
@@ -20,7 +20,7 @@ class ControllersNotFound
 
 	#bindEvents()
 	{
-		const homeButton = this.view.getElement('#homeButton');
+		const homeButton = this.view.getElement('#home-button');
 		if (homeButton) { homeButton.addEventListener("click", async () => { await this.#goHome(); }); }
 	}
 

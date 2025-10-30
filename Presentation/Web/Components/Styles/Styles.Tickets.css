@@ -59,6 +59,15 @@ h2
 	transition: background-color 0.2s ease-out;
 }
 
+.loading
+{
+	text-align: center;
+
+	margin-top: 50px;
+	
+	color: #fff;
+}
+
 .films-container
 {
 	display: grid;
@@ -71,6 +80,9 @@ h2
 
 .film-card
 {
+	display: grid;
+	grid-template-rows: auto 1fr auto;
+
 	text-align: center;
 	
 	padding: 15px;
@@ -114,16 +126,32 @@ h2
 	margin: 5px 0;
 }
 
-.film-card label
+.film-card .booking
+{
+	position: relative;
+	left: 50%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	
+	margin-top: auto;
+	margin-bottom: 10px;
+
+	transform: translateX(-50%);
+}
+
+.film-card .booking label
 {
 	display: block;
 	margin-top: 10px;
 }
 
-.film-card input
+.film-card .booking input
 {
+	display: block;
+	justify-self: center;
+
 	width: 60px;
-	margin-left: 10px;
 }
 
 .film-card button:hover
@@ -158,13 +186,4 @@ h2
 {
 	background-color: #0056b3;
 	transition: background-color 0.2s ease-out;
-}
-
-.loading
-{
-	text-align: center;
-
-	margin-top: 50px;
-	
-	color: #fff;
 }

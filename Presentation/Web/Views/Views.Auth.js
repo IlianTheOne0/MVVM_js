@@ -5,7 +5,13 @@ class ViewsAuth
 
 	#app = null;
 
-	constructor() { this.#app = this.getElement('#app'); }
+	constructor()
+	{
+		if (ViewsAuth.instance) { return ViewsAuth.instance; }
+		ViewsAuth.instance = this;
+		
+		this.#app = this.getElement('#app');
+	}
 
 	getElement(selector) { return document.querySelector(selector); }
 	render(html, bindEvents) { this.#app.innerHTML = html; if (bindEvents) { bindEvents(); } }

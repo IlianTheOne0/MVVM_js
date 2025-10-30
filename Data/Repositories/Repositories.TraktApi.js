@@ -1,7 +1,11 @@
-class RepositoriesTraktApi
+import UtilsCheckers from "../../Infrastructure/Utils/Utils.Checkers.js";
+
+import InterfacesRepositories from "../../Infrastructure/Interfaces/Interfaces.Repositories.js";
+
+class RepositoriesTraktApi extends InterfacesRepositories
 {
 	static getRequiredFields() { return null; }
-	static getRequiredMethods() { return ["getMovies"]; }
+	static getRequiredMethods() { return ["getMovies", "getMoviePrice", "changeMovieStock"]; }
 
 	#source = null;
 	#cache = null;
@@ -10,6 +14,8 @@ class RepositoriesTraktApi
 
 	constructor(source, cache, imageRepository, seatsRepository)
 	{
+		super();
+		
 		if (RepositoriesTraktApi.instance) { return RepositoriesTraktApi.instance; }
 		RepositoriesTraktApi.instance = this;
 
@@ -21,10 +27,13 @@ class RepositoriesTraktApi
 
 	async #transformMovies(movies)
 	{
+		if (movies.length === 0) { return []; }
+
 		const newMovies = [];
 		for (const movie of movies)
 		{
-			newMovies.push(
+			newMovies.push
+			(
 				{
 					id: movie.movie.ids.trakt,
 					title: movie.movie.title,
@@ -36,6 +45,18 @@ class RepositoriesTraktApi
 		}
 		return newMovies;
 	}
+
+	async #transformMovie(movie)
+	{
+		return {
+			id: movie.ids.trakt,
+			title: movie.title,
+			date: movie.released,
+			seatsAvailable: await this.#seatsRepository.getAvailableSeats(movie.ids.trakt),
+			poster: movie.poster
+		};
+	}
+
 
 	async getMovies(pagination = { page: 1, limit: 10 }, filters = {})
 	{
@@ -73,6 +94,56 @@ class RepositoriesTraktApi
 			)();
 
 			return newMovies;
+		}
+		catch (error) { throw error; }
+	}
+
+	async getMoviePrice(movieId)
+	{
+		try
+		{
+			const price = await Promise.resolve((Math.random() * (15 - 5) + 5).toFixed(2));
+			return price;
+		}
+		catch (error) { throw error; }
+	}
+
+	async changeMovieStock(movieId, quantity)
+	{
+		try
+		{
+			const availableSeats = await this.#seatsRepository.getAvailableSeats(movieId);
+			const newSeats = availableSeats + quantity;
+			if (newSeats < 0) { return false; }
+			await this.#seatsRepository.setAvailableSeats(movieId, newSeats);
+			return true;
+		}
+		catch (error) { throw error; }
+	}
+
+	async getMovieById(movieId)
+	{
+		try
+		{
+			const cacheKey = `movie_id${movieId}`;
+			if (this.#cache.has(cacheKey)) { return this.#cache.get(cacheKey); }
+
+			const movie = await this.#source.getMovieById(movieId);
+			if (!movie) { return null; }
+
+			const transformedMovie = await this.#transformMovie(movie);
+			this.#cache.set(cacheKey, transformedMovie, 300);
+			return transformedMovie;
+		}
+		catch (error) { throw error; }
+	}
+
+	async getBlobMoviePoster(posterUrl)
+	{
+		try
+		{
+			const poster = await this.#imageRepository.getImage(posterUrl);
+			return poster;
 		}
 		catch (error) { throw error; }
 	}

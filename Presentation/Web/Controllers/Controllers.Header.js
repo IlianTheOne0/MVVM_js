@@ -2,7 +2,7 @@ import { Router } from "../Router.js"
 
 class ControllersHeader
 {
-	static getRequiredFields() { return ["name"]; }
+	static getRequiredFields() { return ["model", "view", "name"]; }
 	static getRequiredMethods() { return ["initialize"]; }
 	
 	name = "header_controller";

@@ -1,19 +1,20 @@
 class ModelsTickets
 {
 	static getRequiredFields() { return null; }
-	static getRequiredMethods() { return ["getMovies"]; }
+	static getRequiredMethods() { return ["getMovies", "getMoviePoster"]; }
 
-	#ticketsService = null;
+	#service = null;
 
-	constructor(ticketsService)
+	constructor(serviceTickets)
 	{
 		if (ModelsTickets.instance) { return ModelsTickets.instance; }
 		ModelsTickets.instance = this;
 
-		this.#ticketsService = ticketsService;
+		this.#service = serviceTickets;
 	}
 
-	async getMovies(pagination = { page: 10, limit: 10 }, filters = {}) { return await this.#ticketsService.getMovies(pagination, filters); }
+	async getMovies(pagination = { page: 10, limit: 10 }, filters = {}) { return await this.#service.getMovies(pagination, filters); }
+	async getMoviePoster(movieId) { return (await this.#service.getMovieById(movieId)).poster; }
 }
 
 export { ModelsTickets };

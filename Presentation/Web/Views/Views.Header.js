@@ -7,7 +7,13 @@ class ViewsHeader
 
 	#app = null;
 
-	constructor() { this.#app = this.getElement('#header-container'); }
+	constructor()
+	{
+		if (ViewsHeader.instance) { return ViewsHeader.instance; }
+		ViewsHeader.instance = this;
+
+		this.#app = this.getElement('#header-container');
+	}
 
 	getElement(selector) { return document.querySelector(selector); }
 	render(html, bindEvents) { this.#app.innerHTML = html; if (bindEvents) { bindEvents(); } }
@@ -19,16 +25,16 @@ class ViewsHeader
 		const loginLink = this.getElement('#login-link');
 		const logoutLink = this.getElement('#logout-link');
 		const ticketsLink = this.getElement('#tickets-link');
-		// const cartLink = this.getElement('#cart-link');
+		const cartLink = this.getElement('#cart-link');
 
 		if (!loginLink || !logoutLink) { throw new Error("Header elements not found"); }
-		// if (!ticketsLink || !cartLink) { throw new Error("Header elements not found"); }
+		if (!ticketsLink || !cartLink) { throw new Error("Header elements not found"); }
 
 		loginLink.classList = (isLoggedIn ? 'hidden' : '');
 		logoutLink.classList = (isLoggedIn ? '' : 'hidden');
 
 		ticketsLink.classList = (isLoggedIn ? '' : 'hidden');
-		// cartLink.classList = (isLoggedIn ? '' : 'hidden');
+		cartLink.classList = (isLoggedIn ? '' : 'hidden');
 	}
 }
 

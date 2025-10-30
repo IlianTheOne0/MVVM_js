@@ -7,7 +7,13 @@ class ViewsHome
 
 	#app = null;
 
-	constructor() { this.#app = this.getElement('#app'); }
+	constructor()
+	{
+		if (ViewsHome.instance) { return ViewsHome.instance; }
+		ViewsHome.instance = this;
+
+		this.#app = this.getElement('#app');
+	}
 
 	getElement(selector) { return document.querySelector(selector); }
 	render(html, bindEvents) { this.#app.innerHTML = html; if (bindEvents) { bindEvents(); } }

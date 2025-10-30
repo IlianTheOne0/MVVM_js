@@ -5,7 +5,7 @@ import UtilsCheckers from "../../Infrastructure/Utils/Utils.Checkers.js";
 class SourcesTraktApi
 {
 	static getRequiredFields() { return null; }
-	static getRequiredMethods() { return ["initialize", "testConnection", "getMovies"]; }
+	static getRequiredMethods() { return ["initialize", "testConnection", "getMovies", "getMovieById"]; }
 
 	#client = null;
 	#clientId = null;
@@ -65,8 +65,6 @@ class SourcesTraktApi
 	{
 		try
 		{
-			UtilsCheckers.checkArgument(movieId, "number");
-
 			const endpoint = `movies/${movieId}?extended=images`;
 			const response = await this.#query(endpoint, "GET");
 
@@ -127,6 +125,20 @@ class SourcesTraktApi
 			for (const movie of paginatedMovies) { movie.poster = await this.#getMovieImages(movie.movie.ids.trakt); }
 			
 			return paginatedMovies;
+		}
+		catch (error) { throw error; }
+	}
+
+	async getMovieById(movieId)
+	{
+		try
+		{
+			const endpoint = `movies/${movieId}`;
+			const movie = await this.#query(endpoint, "GET");
+			if (!movie) { throw new Error("Invalid response from Trakt API"); }
+
+			movie.poster = await this.#getMovieImages(movieId);
+			return movie;
 		}
 		catch (error) { throw error; }
 	}

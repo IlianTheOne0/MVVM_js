@@ -5,10 +5,10 @@ class ViewsDefault
 
 	#app = null;
 
-	constructor() { this.#app = this.getElement('#app'); }
+	constructor() {this.#app = this.getElement('#app'); }
 
 	getElement(selector) { return document.querySelector(selector); }
-	render(html) { this.#app.innerHTML = html; }
+	render(html, bindEvents) { this.#app.innerHTML = html; if (bindEvents) { bindEvents(); } }
 }
 
 export { ViewsDefault };

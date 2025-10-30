@@ -1,4 +1,6 @@
-class RepositoriesImages
+import InterfacesRepositories from "../../Infrastructure/Interfaces/Interfaces.Repositories.js";
+
+class RepositoriesImages extends InterfacesRepositories
 {
 	static getRequiredFields() { return null; }
 	static getRequiredMethods() { return ["getImage"]; }
@@ -7,6 +9,8 @@ class RepositoriesImages
 
 	constructor(cache)
 	{
+		super();
+		
 		if (RepositoriesImages.instance) { return RepositoriesImages.instance; }
 		RepositoriesImages.instance = this;
 

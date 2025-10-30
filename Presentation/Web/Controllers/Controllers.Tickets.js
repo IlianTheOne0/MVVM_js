@@ -1,23 +1,27 @@
 class ControllersTickets
 {
-	static getRequiredFields() { return ["name"]; }
+	static getRequiredFields() { return ["modelTickets", "modelCart", "view", "name"]; }
 	static getRequiredMethods() { return ["initialize"]; }
 	
 	name = "tickets_controller";
-
-	constructor(model, view)
+	#films = null;
+	
+	constructor(modelTickets, modelCart, view)
 	{
 		if (ControllersTickets.instance) { return ControllersTickets.instance; }
 		ControllersTickets.instance = this;
 
-		this.model = model;
+		this.modelTickets = modelTickets;
+		this.modelCart = modelCart;
 		this.view = view;
 	}
 
 	async initialize(html)
 	{
-		const films = await this.model.getMovies({ page: this.view.getElement('#current-page') || 1, limit: 15 });
-		this.view.render(html, this.#bindEvents.bind(this), films);
+		this.#films = await this.modelTickets.getMovies({ page: this.view.getElement('#current-page') || 1, limit: 15 });
+		this.view.render(html, this.#bindEvents.bind(this), this.#films);
+		this.view.addSubscriber(this.#bookTicketControls.bind(this));
+		this.#bookTicketControls();
 	}
 
 	#pageControls()
@@ -42,8 +46,8 @@ class ControllersTickets
 				this.view.showLoading();
 				this.view.hideAllFilms();
 
-				const films = await this.model.getMovies({ page: currentPage, limit: 15 });
-				this.view.render(this.view.getElement('#app').innerHTML, this.#bindEvents.bind(this), films);
+				this.#films = await this.modelTickets.getMovies({ page: currentPage, limit: 15 });
+				this.view.render(this.view.getElement('#app').innerHTML, this.#bindEvents.bind(this), this.#films);
 
 				this.view.hideLoading();
 			}
@@ -60,9 +64,9 @@ class ControllersTickets
 				this.view.showLoading();
 				this.view.hideAllFilms();
 
-				const films = await this.model.getMovies({ page: currentPage, limit: 15 });
-				this.view.render(this.view.getElement('#app').innerHTML, this.#bindEvents.bind(this), films);
-
+				this.#films = await this.modelTickets.getMovies({ page: currentPage, limit: 15 });
+				this.view.render(this.view.getElement('#app').innerHTML, this.#bindEvents.bind(this), this.#films);
+				
 				this.view.hideLoading();
 			}
 		);
@@ -99,11 +103,11 @@ class ControllersTickets
 				if (titleFilter) { filters.title = titleFilter; }
 				if (dateFromFilter) { filters.dateFrom = dateFromFilter; }
 				if (dateToFilter) { filters.dateTo = dateToFilter; }
+
+				this.#films = await this.modelTickets.getMovies({ page: 1, limit: 15 }, filters);
+				this.view.render(this.view.getElement('#app').innerHTML, this.#bindEvents.bind(this), this.#films);
 				
-				const films = await this.model.getMovies({ page: 1, limit: 15 }, filters);
-
-				this.view.render(this.view.getElement('#app').innerHTML, this.#bindEvents.bind(this), films);
-
+				currentPageP.textContent = '1';
 				this.view.getElement('#filter-title').value = titleFilter;
 				this.view.getElement('#filter-date-from').value = dateFromFilter;
 				this.view.getElement('#filter-date-to').value = dateToFilter;
@@ -127,10 +131,52 @@ class ControllersTickets
 				this.view.showLoading();
 				this.view.hideAllFilms();
 				
-				const films = await this.model.getMovies({ page: 1, limit: 15 });
-				this.view.render(this.view.getElement('#app').innerHTML, this.#bindEvents.bind(this), films);
-				
+				this.#films = await this.modelTickets.getMovies({ page: 1, limit: 15 });
+				this.view.render(this.view.getElement('#app').innerHTML, this.#bindEvents.bind(this), this.#films);
+
 				this.view.hideLoading();
+			}
+		);
+	}
+
+	async #bookTicketControls()
+	{
+		const bookButtons = this.view.getElements('#book-ticket-button');
+		if (!bookButtons || bookButtons.length === 0) { return; }
+
+		bookButtons.forEach
+		(
+			(button) =>
+			{
+				button.addEventListener
+				(
+					'click',
+					async () =>
+					{
+						const filmId = button.getAttribute('data-item-id');
+						const film = this.#films.find(film => film.id == filmId);
+						const seatSelectionInput = this.view.getElement(`#seat-selection-${filmId}`);
+						const numberOfSeats = seatSelectionInput ? parseInt(seatSelectionInput.value) : 1;
+
+						if (isNaN(numberOfSeats) || numberOfSeats < 1 || numberOfSeats > 10 || numberOfSeats > film.seatsAvailable) { alert(`Invalid number of seats: ${numberOfSeats}`); return; }
+						
+						let posterUrl = await this.modelTickets.getMoviePoster(filmId);
+						if (!posterUrl) { posterUrl = {}; }
+						
+						const tickets = { id: film.id, title: film.title, quantity: numberOfSeats, poster: posterUrl };
+
+						try
+						{
+							await this.modelCart.bookTickets(tickets);
+							alert(`Successfully booked ${numberOfSeats} tickets for "${film.title}"`);
+
+							film.seatsAvailable -= numberOfSeats;
+							const seatsElement = this.view.getElement(`#seat-selection-${filmId}`).closest('.film-card').querySelector('#film-card_available-seats');
+							if (seatsElement) { seatsElement.textContent = `Available Seats: ${film.seatsAvailable}`; }
+						}
+						catch (error) { alert(`Error booking tickets: ${error.message}`); }
+					}
+				);
 			}
 		);
 	}

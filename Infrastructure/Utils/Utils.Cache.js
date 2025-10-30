@@ -1,3 +1,8 @@
+import UtilsCheckers from "./Utils.Checkers.js";
+
+import InterfacesRepositories from "../Interfaces/Interfaces.Repositories.js";
+import InterfacesServices from "../Interfaces/Interfaces.Services.js";
+
 class UtilsCache
 {
 	static getRequiredFields() { return null; }
@@ -5,7 +10,13 @@ class UtilsCache
 
 	#map;
 
-	constructor(timeToLive = 6 * 100) { this.#map = new Map(); this.timeToLive = timeToLive; }
+	constructor(instance, timeToLive = 6 * 100)
+	{
+		this.#map = new Map(); this.timeToLive = timeToLive;
+
+		if (UtilsCheckers.checkInstance(instance, InterfacesRepositories)) { return UtilsCache.repositoryInstance ? UtilsCache.repositoryInstance : UtilsCache.repositoryInstance = this; }
+		if (UtilsCheckers.checkInstance(instance, InterfacesServices)) { return UtilsCache.serviceInstance ? UtilsCache.serviceInstance : UtilsCache.serviceInstance = this; }
+	}
 
 	#set(key, value, timeToLive = null)
 	{
